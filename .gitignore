@@ -1,0 +1,4 @@
+build/*
+debug/*
+default/*
+release/*
