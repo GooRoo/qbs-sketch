@@ -22,7 +22,7 @@ function listFiles(dir, recurse) {
 	return files;
 }
 
-function buildArguments(inputs, props, command) {
+function buildArguments(input, props, command) {
 	function combineList(params) {
 		return params.join(',')
 	}
@@ -35,47 +35,51 @@ function buildArguments(inputs, props, command) {
 		return '--' + key + '=' + combineList(asArray(params))
 	}
 
+	function prop(name) {
+		return input.sketch[name] //|| props[name]
+	}
+
 	var args = []
 
 	args.push(command)
 	if (command === 'export') {
-		args.push(props.exportMode)
+		args.push(prop('exportMode'))
 
-		if (props.formats.length > 0) {
-			args.push(cmdSwitch('formats', props.formats))
+		if (prop('formats').length > 0) {
+			args.push(cmdSwitch('formats', prop('formats')))
 		}
 
-		if (props.scales.length > 0) {
-			args.push(cmdSwitch('scales', props.scales))
+		if (prop('scales').length > 0) {
+			args.push(cmdSwitch('scales', prop('scales')))
 		}
 
-		if (props.assetsOutputDir) {
-			args.push(cmdSwitch('output', props.assetsOutputDir))
+		if (prop('assetsOutputDir')) {
+			args.push(cmdSwitch('output', prop('assetsOutputDir')))
 		}
 	}
 
-	args = args.concat(inputs.map(function (i) { return i.filePath }))
+	args.push(input.filePath)
 
 	return args
 }
 
 function prepareExport(product, inputs) {
-	var cmd = new Command()
-	cmd.program = product.sketch.sketchtoolPath
-	cmd.arguments = buildArguments(inputs['sketch'], product.sketch, 'export')
-	cmd.workingDirectory = product.sketch.workingDir
-	cmd.description = inputs.sketch.map(function (input) {
-		return 'exporting assets from ' + input.fileName
-	}).join(' [' + product.name + ']\n')
-	cmd.highlight = 'filegen'
-	cmd.stdoutFilterFunction = function (_) { return '' }
-	return cmd
+	return inputs.sketch.map(function (inputFile) {
+		var cmd = new Command()
+		cmd.program = product.sketch.sketchtoolPath
+		cmd.arguments = buildArguments(inputFile, product.sketch, 'export')
+		cmd.workingDirectory = product.sketch.workingDir
+		cmd.description = 'exporting assets from ' + inputFile.fileName
+		cmd.highlight = 'filegen'
+		cmd.stdoutFilterFunction = function (_) { return '' }
+		return cmd
+	})
 }
 
 function prepareMetadata(product, input, output) {
 	var cmd = new Command()
 	cmd.program = product.sketch.sketchtoolPath
-	cmd.arguments = buildArguments([input], product.sketch, 'metadata')
+	cmd.arguments = buildArguments(input, product.sketch, 'metadata')
 	cmd.description = 'extracting metadata from ' + input.fileName
 	cmd.highlight = 'codegen'
 	cmd.stdoutFilePath = FileInfo.joinPaths(product.buildDirectory, output.fileName)

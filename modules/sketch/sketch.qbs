@@ -1,8 +1,8 @@
 import qbs
 import qbs.File
 import qbs.FileInfo
-import qbs.ModUtils
 import qbs.TextFile
+
 import 'sketch.js' as sk4
 
 Module {
@@ -60,7 +60,12 @@ Module {
 				File.makePath(outDir)
 			}
 
-			var cmd = sk4.prepareExport(product, inputs)
+			// The rule is 'multiplex' because it collects the list of exported
+			// assets only once. Although it's possible to run export of several
+			// sketch-files with a single command, here I create a separate
+			// command for each input file in order to be able to control their
+			// export properties separately even within one product (using Groups)
+			var cmds = sk4.prepareExport(product, inputs)
 
 			var listFiles = new JavaScriptCommand()
 			listFiles.silent = true
@@ -73,7 +78,12 @@ Module {
 				}
 			}
 
-			return [mkdir, cmd, listFiles]
+			var cmdList = []
+			cmdList.push(mkdir)
+			cmdList = cmdList.concat(cmds)
+			cmdList.push(listFiles)
+
+			return cmdList
 		}
 	}
 
