@@ -115,7 +115,6 @@ var PropertyValidatorEx = (function () {
 			'. You provided: ' + propertyValue
 
 		this.addCustomValidator(propertyName, propertyValue, function (value) {
-			console.warn(value)
 			if (treatAsList) {
 				var v = value instanceof Array? value : [value]
 				return allowedValues.containsAll(v)

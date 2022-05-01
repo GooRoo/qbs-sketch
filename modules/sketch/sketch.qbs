@@ -18,20 +18,67 @@ Module {
     }
 
 	property path sketchtoolPath: probe.filePath
+	PropertyOptions {
+		name: 'sketchtoolPath'
+		description:
+			'The path to the sketchtool that will be used for exporting. By default, ' +
+			'the binary from the first found Sketch.app installed in your system is used.'
+	}
 
 	property string assetsOutputDir
+	PropertyOptions {
+		name: 'assetsOutputDir'
+		description: 'The specified dir is prepended to each exported asset path.'
+	}
 
 	property bool cleanBeforeExport: true
+	PropertyOptions {
+		name: 'cleanBeforeExport'
+		description: 'Specifies whether to clean the output folder before each new export. By default, it is true.'
+	}
 
 	property stringList formats: []
+	PropertyOptions {
+		name: 'formats'
+		allowedValues: ['png', 'jpg', 'tiff', 'webp', 'pdf', 'eps', 'svg']
+		description:
+			'The format in which assets are generated. ' +
+			'By default it is PNG, but can also be JPG, TIFF, WebP, PDF, EPS, or SVG. ' +
+			'You can also provide a list of formats to export in all of them.'
+	}
 
 	property bool exportAssets: true
+	PropertyOptions {
+		name: 'exportAssets'
+		description:
+			'Specifies whether to export assets. By default, ' +
+			'it is true. Can be used if you want to export only metadata.'
+	}
 
 	property string exportMode: 'layers'
+	PropertyOptions {
+		name: 'exportMode'
+		allowedValues: ['layers', 'artboards', 'pages', 'preview']
+		description:
+			'Allows to choose what to export. By default, "layers" are exported ' +
+			'but it also can be "artboards", "pages", or document "preview".'
+	}
 
 	property varList scales: []
+	PropertyOptions {
+		name: 'scales'
+		description:
+			'List of scales to be used for export of assets. By default, all assets are exported ' +
+			'according to the presets defined in the document. You can override this by defining ' +
+			'another scale or list of scales. It is also possible to scale down by providing a ' +
+			'scale 0 < value <= 1.'
+	}
 
 	property bool exportMetadata: false
+	PropertyOptions {
+		name: 'exportMetadata'
+		description: 'Specifies whether to export metadata. By default, it is false.'
+	}
 
 	readonly property string workingDir: FileInfo.joinPaths(product.buildDirectory, 'sketch.dir')
 
