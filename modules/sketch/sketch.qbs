@@ -23,20 +23,27 @@ Module {
 
 	property bool cleanBeforeExport: true
 
-	property stringList formats: [] // ['png', 'jpg', 'pdf', 'eps', 'svg', 'tiff']
+	property stringList formats: []
 
 	property bool exportAssets: true
 
-	property string exportMode: 'layers' // 'artboards', 'pages', 'preview'
+	property string exportMode: 'layers'
 
-	property varList scales: [] // [1, 2]
+	property varList scales: []
 
 	property bool exportMetadata: false
 
 	readonly property string workingDir: FileInfo.joinPaths(product.buildDirectory, 'sketch.dir')
 
 	condition: qbs.targetOS.contains('macos')
-	// validate:
+	validate: {
+		var validator = new sk4.PropertyValidatorEx('sketch')
+		validator.setRequiredProperty('sketchtoolPath', sketchtoolPath)
+		validator.addEnumValidator('formats', formats, ['png', 'jpg', 'tiff', 'webp', 'pdf', 'eps', 'svg'], true)
+		validator.addEnumValidator('exportMode', exportMode, ['layers', 'artboards', 'pages', 'preview'])
+		validator.addNumberListValidator('scales', scales, 0, undefined, true, false)
+		validator.validate();
+	}
 
 	Rule {
 		multiplex: true

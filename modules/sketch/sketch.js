@@ -1,6 +1,7 @@
 var DarwinTools = require('qbs.DarwinTools')
 var File = require('qbs.File')
 var FileInfo = require('qbs.FileInfo')
+var ModUtils = require('qbs.ModUtils')
 var TextFile = require('qbs.TextFile')
 var Utilities = require('qbs.Utilities')
 
@@ -22,7 +23,7 @@ function listFiles(dir, recurse) {
 	return files;
 }
 
-function buildArguments(input, props, command) {
+function buildArguments(input, command) {
 	function combineList(params) {
 		return params.join(',')
 	}
@@ -35,26 +36,24 @@ function buildArguments(input, props, command) {
 		return '--' + key + '=' + combineList(asArray(params))
 	}
 
-	function prop(name) {
-		return input.sketch[name] //|| props[name]
-	}
+	var props = input.sketch
 
 	var args = []
 
 	args.push(command)
 	if (command === 'export') {
-		args.push(prop('exportMode'))
+		args.push(props.exportMode)
 
-		if (prop('formats').length > 0) {
-			args.push(cmdSwitch('formats', prop('formats')))
+		if (asArray(props.formats).length > 0) {
+			args.push(cmdSwitch('formats', props.formats))
 		}
 
-		if (prop('scales').length > 0) {
-			args.push(cmdSwitch('scales', prop('scales')))
+		if (asArray(props.scales).length > 0) {
+			args.push(cmdSwitch('scales', props.scales))
 		}
 
-		if (prop('assetsOutputDir')) {
-			args.push(cmdSwitch('output', prop('assetsOutputDir')))
+		if (props.assetsOutputDir) {
+			args.push(cmdSwitch('output', props.assetsOutputDir))
 		}
 	}
 
@@ -67,7 +66,7 @@ function prepareExport(product, inputs) {
 	return inputs.sketch.map(function (inputFile) {
 		var cmd = new Command()
 		cmd.program = product.sketch.sketchtoolPath
-		cmd.arguments = buildArguments(inputFile, product.sketch, 'export')
+		cmd.arguments = buildArguments(inputFile, 'export')
 		cmd.workingDirectory = product.sketch.workingDir
 		cmd.description = 'exporting assets from ' + inputFile.fileName
 		cmd.highlight = 'filegen'
@@ -79,7 +78,7 @@ function prepareExport(product, inputs) {
 function prepareMetadata(product, input, output) {
 	var cmd = new Command()
 	cmd.program = product.sketch.sketchtoolPath
-	cmd.arguments = buildArguments(input, product.sketch, 'metadata')
+	cmd.arguments = buildArguments(input, 'metadata')
 	cmd.description = 'extracting metadata from ' + input.fileName
 	cmd.highlight = 'codegen'
 	cmd.stdoutFilePath = FileInfo.joinPaths(product.buildDirectory, output.fileName)
@@ -94,3 +93,84 @@ function exportedFiles(filePath) {
 		if (f) f.close()
 	}
 }
+
+var PropertyValidatorEx = (function () {
+	function PropertyValidatorEx(moduleName) {
+		ModUtils.PropertyValidator.call(this, moduleName)
+	}
+
+	PropertyValidatorEx.prototype = Object.create(ModUtils.PropertyValidator.prototype)
+	PropertyValidatorEx.prototype.constructor = PropertyValidatorEx
+
+	PropertyValidatorEx.prototype.addEnumValidator = function (propertyName, propertyValue, allowedValues, treatAsList) {
+		treatAsList = treatAsList === true
+
+		if (!(allowedValues instanceof Array)) {
+			throw 'allowedValues must be a list'
+		}
+
+		var message =
+			(treatAsList? 'must contain only' : 'must be one of') +
+			' the following values: ' + allowedValues.join(', ') +
+			'. You provided: ' + propertyValue
+
+		this.addCustomValidator(propertyName, propertyValue, function (value) {
+			console.warn(value)
+			if (treatAsList) {
+				var v = value instanceof Array? value : [value]
+				return allowedValues.containsAll(v)
+			} else {
+				return allowedValues.contains(value)
+			}
+		}, message)
+	}
+
+	PropertyValidatorEx.prototype.addNumberListValidator = function (propertyName, propertyValue, min, max, allowFloats, includeBoundaries) {
+		includeBoundaries = typeof includeBoundaries !== 'undefined'? includeBoundaries : true;
+
+		var equal = includeBoundaries? '=' : ''
+		var conditions = []
+		if (min !== undefined) {
+			conditions.push('>' + equal + ' ' + min)
+		}
+		if (max !== undefined) {
+			conditions.push('<' + equal + ' ' + max)
+		}
+
+		var message =
+			'must contain only' + (!allowFloats ? ' integers ' : ' numbers ') +
+			'that are ' + conditions.join(' and ') +
+			'. You provided: ' + propertyValue
+
+		this.addCustomValidator(propertyName, propertyValue, function (value) {
+			function allOf(collection, predicate) {
+				for (var key in collection) {
+					if (!predicate(collection[key])) {
+						return false
+					}
+				}
+				return true
+			}
+
+			return allOf(value, function (elem) {
+				if (typeof elem !== 'number') {
+					return false
+				} else if (!allowFloats && elem % 1 !== 0) {
+					return false
+				} else if (min !== undefined && includeBoundaries && elem < min) {
+					return false
+				} else if (max !== undefined && includeBoundaries && elem > max) {
+					return false
+				} else if (min !== undefined && !includeBoundaries && elem <= min) {
+					return false
+				} else if (max !== undefined && !includeBoundaries && elem >= max) {
+					return false
+				} else {
+					return true
+				}
+			})
+		}, message)
+	}
+
+	return PropertyValidatorEx
+})()
