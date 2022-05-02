@@ -10,6 +10,9 @@ import '../sketch.js' as sk4
 
 ExportModuleBase {
 	Depends { name: 'Sketch.layers' }
+	Depends { name: 'Sketch.artboards' }
+	Depends { name: 'Sketch.pages' }
+	Depends { name: 'Sketch.preview' }
 
 	SketchtoolProbe {
 		id: probe

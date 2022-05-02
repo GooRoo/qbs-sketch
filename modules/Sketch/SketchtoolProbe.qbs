@@ -9,7 +9,7 @@ Probes.BinaryProbe {
 		try {
 			p.exec('mdfind', ['kMDItemCFBundleIdentifier=="com.bohemiancoding.sketch3"'], true)
 			var sketchApps = p.readStdOut().split('\n')
-			return Array.prototype.reduce.call(sketchApps, function (acc, value) {
+			return sketchApps.reduce(function (acc, value) {
 				if (value) {
 					acc.push(value + '/Contents/MacOS')
 				}

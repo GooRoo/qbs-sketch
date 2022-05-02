@@ -28,14 +28,6 @@ function buildArguments(input, command, mode) {
 		return params.join(',')
 	}
 
-	function asArray(value) {
-		if (!value) {
-			return []
-		} else {
-			return value instanceof Array? value : [value]
-		}
-	}
-
 	function cmdSwitch(key, param) {
 		return '--' + key + '=' + param
 	}
@@ -45,7 +37,7 @@ function buildArguments(input, command, mode) {
 	}
 
 	function cmdSwitchList(key, params) {
-		return cmdSwitch(key, combineList(asArray(params)))
+		return cmdSwitch(key, combineList(params))
 	}
 
 	function cmdSwitchRect(key, param) {
@@ -53,7 +45,12 @@ function buildArguments(input, command, mode) {
 	}
 
 	function prop(key) {
-		return input.Sketch[mode][key] || input.Sketch['export'][key]
+		function valueOrNull(v) {
+			if (typeof v === 'undefined') return null
+			else if (v instanceof Array && v.length === 0) return null
+			else return v
+		}
+		return valueOrNull(input.Sketch[mode][key]) || input.Sketch['export'][key]
 	}
 
 	function eligible(mode, key) {
@@ -78,8 +75,6 @@ function buildArguments(input, command, mode) {
 
 		return cmdModeToKey[mode].contains(key)
 	}
-
-	var props = input.Sketch[command]
 
 	var args = []
 
