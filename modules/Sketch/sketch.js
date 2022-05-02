@@ -359,13 +359,19 @@ var PropertyValidatorEx = (function () {
 	}
 
 	PropertyValidatorEx.prototype.addRectangleValidator = function (propertyName, propertyValue) {
+		var message =
+			'must be a valid rectangle represented by an object ' +
+			'with "x", "y", "width", and "height" properties. All ' +
+			'properties are numbers. Width and height must be greater ' +
+			'than 0. You provided: ' + JSON.stringify(propertyValue)
+
 		this.addCustomValidator(propertyName, propertyValue, function (value) {
 			var requiredProps = ['x', 'y', 'width', 'height']
 			if (typeof value === 'undefined') {
 				return true
 			} else if (typeof value !== 'object') {
 				return false
-			} else if (!Object.keys(value).containsAll()) {
+			} else if (!Object.keys(value).containsAll(requiredProps)) {
 				return false
 			} else if (!PropertyValidatorEx.allOf(requiredProps, function (p) { return typeof value[p] === 'number' })) {
 				return false
@@ -374,7 +380,7 @@ var PropertyValidatorEx = (function () {
 			} else {
 				return true
 			}
-		}, 'must be a valid rectangle.')
+		}, message)
 	}
 
 	return PropertyValidatorEx
