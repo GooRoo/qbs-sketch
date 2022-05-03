@@ -46,7 +46,7 @@ ExportModuleBase {
 			'but it also can be "artboards", "pages", or document "preview".'
 	}
 
-	readonly property string workingDir: FileInfo.joinPaths(product.buildDirectory, 'sketch.dir')
+	readonly property path workingDir: FileInfo.joinPaths(product.buildDirectory, 'sketch.dir')
 
 	condition: qbs.targetOS.contains('macos')
 	validate: {
