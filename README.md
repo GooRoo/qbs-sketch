@@ -1,7 +1,6 @@
 # qbs-sketch
 
 [![Made by Ukrainian](https://img.shields.io/static/v1?label=Made%20by&message=Ukrainian&labelColor=1f5fb2&color=fad247&style=flat-square)](https://github.com/GooRoo/ukrainian-shields)
-[![License](https://img.shields.io/github/license/GooRoo/qbs-sketch?style=flat-square)](LICENSE)
 
 This [Qbs][qbs] module integrates [Sketch][sketch] into your build process allowing you to automate the pipeline of assets delivery.
 
