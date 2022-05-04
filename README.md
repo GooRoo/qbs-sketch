@@ -46,7 +46,7 @@ This produces a folder structure similar to this (depending on the contents of y
    ├─ Colors.pdf
    ├─ Colors.svg
    ├─ Typography.pdf
-   └─ Typography.pdf
+   └─ Typography.svg
 ```
 All exported files are [tagged](https://doc.qt.io/qbs/language-introduction.html#file-tags-and-taggers) as `sketch.export` and can be used in further products as input.
 
