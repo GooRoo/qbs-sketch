@@ -86,4 +86,5 @@ nav:
       - Sketch.metadata: reference/metadata.md
     - Items:
       - SketchExport: reference/sketch-export.md
+      - SketchExportGroup: reference/sketch-export-group.md
   - Development: development.md

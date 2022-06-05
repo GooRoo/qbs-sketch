@@ -98,6 +98,19 @@ SketchExport {
 	```
 	That happens because **`export`** is a reserved word in JavaScript. If it is met in _Qbs context_ (on the left side of a property assignment), there is no problem, but when the parser encounters it in _JavaScript context_ (on the rigth side of a property assignment), it fails.
 
+Since installing files as above is a quite common case, the module provides an additional item [`SketchExportGroup`][sketchexportgroup-item] for your convenience. With it, the code becomes even shorter:
+
+```qml hl_lines="7"
+import qbs
+
+SketchExport {
+	name: 'sketch-assets'
+	files: '*.sketch'
+
+	SketchExportGroup {}  // installs everything preserving the folder structure
+}
+```
+
 [export]: ../reference/index.md
 [metadata]: ../reference/metadata.md
 [layers]: ../reference/layers.md
@@ -105,5 +118,6 @@ SketchExport {
 [pages]: ../reference/pages.md
 [preview]: ../reference/preview.md
 [sketchexport-item]: ../reference/sketch-export.md
+[sketchexportgroup-item]: ../reference/sketch-export-group.md
 
 [export-mode]: ../reference/index.md#mode

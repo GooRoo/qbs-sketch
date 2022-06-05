@@ -5,10 +5,8 @@ SketchExport {
 
 	files: '*.sketch'
 
-	Group {
-		fileTagsFilter: ['sketch.export']
-		qbs.install: true
-		qbs.installPrefix: 'docs'
-		qbs.installDir: 'assets'
+	SketchExportGroup {
+		installPrefix: 'docs'
+		installDir: 'assets'
 	}
 }
