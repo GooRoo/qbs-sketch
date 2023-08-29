@@ -155,28 +155,6 @@ function buildArguments(input, command, mode) {
 }
 
 function prepareExport(product, inputs) {
-	// I defined this class only because I thought it would help me to avoid the crash
-	// but it didn't (see below)
-	var MkPreviewDir = (function () {
-		function MkPreviewDir(dir) {
-			this.dir = dir
-			this.silent = true
-			// this.sourceCode = this.makeDir   // this just doesn't work
-			this.sourceCode = function () {     // and this crashes Qbs
-				File.makePath(this.dir)
-			}
-		}
-
-		MkPreviewDir.prototype = Object.create(JavaScriptCommand.prototype)
-		MkPreviewDir.prototype.constructor = MkPreviewDir
-
-		MkPreviewDir.prototype.makeDir = function () {
-			File.makePath(this.dir)
-		}
-
-		return MkPreviewDir
-	})()
-
 	return inputs.sketch.flatMap(function (inputFile) {
 		return inputFile.Sketch['export'].mode.flatMap(function (m) {
 			var cmds = []
@@ -185,8 +163,6 @@ function prepareExport(product, inputs) {
 					product.Sketch['export'].workingDir,
 					inputFile.Sketch.preview.outputDir
 				)
-
-				// cmds.push(new MkPreviewDir(previewDir))
 
 				// FIXME: This is some Qbs bug. I tried to use JavaScriptCommand here, but
 				// it crashes Qbs with segmentation fault. Had to fallback to regular Command
