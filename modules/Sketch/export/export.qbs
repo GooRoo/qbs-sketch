@@ -115,13 +115,28 @@ ExportModuleBase {
 		outputFileTags: [
 			'sketch.export',
 			'png', 'jpg', 'tiff', 'webp', 'pdf', 'eps', 'svg',
+			'@1x', '@2x', '@3x', '@4x',
+			'@1x.9', '@2x.9', '@3x.9', '@4x.9',
 		]
 		outputArtifacts: {
+			function filenameToTags(f) {
+				var tags = ['sketch.export', FileInfo.suffix(f)]
+
+				var match = FileInfo.baseName(f).match(/@\d+x/)
+				tags.push(match || '@1x')
+
+				if (match = FileInfo.completeBaseName(f).match(/(@\d+x)?\.9/)) {
+					tags.push(match[1]? match[0] : '@1x.9')
+				}
+
+				return tags
+			}
+
 			var exportedFiles = sk4.exportedFiles(FileInfo.joinPaths(product.buildDirectory, 'sketch-export.list'))
 			return exportedFiles.map(function (ef) {
 				return {
 					filePath: ef,
-					fileTags: ['sketch.export', FileInfo.suffix(ef)]
+					fileTags: filenameToTags(ef)
 				}
 			})
 		}
